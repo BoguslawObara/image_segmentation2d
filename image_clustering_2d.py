@@ -1,10 +1,9 @@
 ''' Image Processing Library'''
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
+from skimage import io
 from skimage import color
-from skimage import img_as_ubyte
-from skimage.color import rgb2gray
+from skimage import img_as_ubyte, img_as_float
 from skimage.transform import rescale
 from skimage.segmentation import slic
 from skimage.future.graph import cut_normalized
@@ -16,6 +15,7 @@ from sklearn.cluster import Birch
 from sklearn.cluster import DBSCAN
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.neighbors import kneighbors_graph
+
 
 def normalised_cut_clustering(im):
 
@@ -176,30 +176,79 @@ def dbscan_clustering(im, scale=0.1):
 
   return im_labels
 
-def display_segm(im, im_labels):
+def display_segm2(im, im_labels):
   fig, (ax1, ax2) = plt.subplots(1, 2)
   ax1.imshow(im, cmap='gray', interpolation='nearest')
   ax1.axis('off')
-  ax1.set_title('Noisy data')
+  ax1.set_title('Image')
   ax2.imshow(im_labels, cmap='magma', interpolation='nearest')
   ax2.axis('off')
   ax2.set_title('Segmentation')
   fig.tight_layout()
   plt.show()
 
+def display_segm(ims, titles, num_cols=4):
+  num_rows = np.math.ceil((len(titles)) / num_cols)
+  fig, ax = plt.subplots(num_rows, num_cols, sharex=True, sharey=True)
+
+  ax = ax.ravel()
+  for i in range(0, len(titles)):
+    if i==0:
+      ax[i].imshow(im, cmap='gray')
+    else:
+      ax[i].imshow(ims[i], cmap='jet')
+    ax[i].set_title(titles[i])
+    ax[i].axis('off')
+    ax[i].autoscale(tight=True)
+
+  for i in range(len(titles), num_rows * num_cols):
+    fig.delaxes(ax[i])
+
+  #fig.tight_layout()
+  plt.show()
+
 if __name__ == '__main__':
+
+  # lists
+  ims = []
+  titles = []
 
   # load image
   filename = './im/cell2d.png'
-  im = mpimg.imread(filename)
-  im = rgb2gray(im) # intensity = [0,1]
+  im = io.imread(filename)
+  im = img_as_float(im)
+  im = rescale(im, 0.2, anti_aliasing=False)
+  ims.append(im)
+  titles.append('image')
 
   # auto semi-supervised image clustering
-  # _, im_labels = normalised_cut_clustering(im)
-  # im_labels = spectral_graph_clustering(im)
-  # im_labels = spectral_graph_clustering_new(im)
-  # im_labels = spectral_nn_clustering(im)
-  # im_labels = agglomerative_graph_clustering(im)
-  # im_labels = birch_clustering(im)
-  im_labels = dbscan_clustering(im)
-  display_segm(im, im_labels)
+  _, im_labels = normalised_cut_clustering(im)
+  ims.append(im_labels)
+  titles.append('normalised_cut_clustering')
+
+  im_labels = spectral_graph_clustering(im, scale=1)
+  ims.append(im_labels)
+  titles.append('spectral_graph_clustering')
+
+  im_labels = spectral_graph_clustering_new(im, scale=1)
+  ims.append(im_labels)
+  titles.append('spectral_graph_clustering_new')
+
+  im_labels = spectral_nn_clustering(im, scale=1)
+  ims.append(im_labels)
+  titles.append('spectral_nn_clustering')
+
+  im_labels = agglomerative_graph_clustering(im, scale=1)
+  ims.append(im_labels)
+  titles.append('agglomerative_graph_clustering')
+
+  im_labels = birch_clustering(im, scale=1)
+  ims.append(im_labels)
+  titles.append('birch_clustering')
+
+  im_labels = dbscan_clustering(im, scale=1)
+  ims.append(im_labels)
+  titles.append('dbscan_clustering')
+
+  # plot
+  display_segm(ims, titles)

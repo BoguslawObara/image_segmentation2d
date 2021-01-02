@@ -1,8 +1,7 @@
 ''' Image Processing Library'''
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-from skimage.color import rgb2gray
+from skimage import io
 from skimage.segmentation import random_walker
 
 class Cursor(object):
@@ -24,7 +23,7 @@ class Cursor(object):
 
     self.ax1.imshow(self.im, cmap='gray', interpolation='nearest')
     self.ax1.axis('off')
-    self.ax1.set_title('Noisy data')
+    self.ax1.set_title('Image')
     self.ax2.imshow(self.im_markers, cmap='magma', interpolation='nearest')
     self.ax2.axis('off')
     self.ax2.set_title('Markers')
@@ -37,9 +36,6 @@ class Cursor(object):
     x, y = event.xdata, event.ydata
     x, y = int(x), int(y)
     # print('x=%1.2f, y=%1.2f' % (x, y))
-    #imd = np.ones(im.shape, dtype=np.bool)
-    #imd[y, x] = 0
-    #imd = distance_transform_edt(imd)<self.r
     imd = np.sqrt((self.xx-y)**2 + (self.yy-x)**2) <= self.r
 
     if event.button == 1:
@@ -75,8 +71,7 @@ if __name__ == '__main__':
 
   # load image
   filename = './im/cell2d.png'
-  im = mpimg.imread(filename)
-  im = rgb2gray(im) # intensity = [0,1]
+  im = io.imread(filename)
 
   # manual semi-supervised image clustering
   im_markers = np.zeros(im.shape, dtype=np.uint8)
