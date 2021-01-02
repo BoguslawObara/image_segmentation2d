@@ -176,17 +176,6 @@ def dbscan_clustering(im, scale=0.1):
 
   return im_labels
 
-def display_segm2(im, im_labels):
-  fig, (ax1, ax2) = plt.subplots(1, 2)
-  ax1.imshow(im, cmap='gray', interpolation='nearest')
-  ax1.axis('off')
-  ax1.set_title('Image')
-  ax2.imshow(im_labels, cmap='magma', interpolation='nearest')
-  ax2.axis('off')
-  ax2.set_title('Segmentation')
-  fig.tight_layout()
-  plt.show()
-
 def display_segm(ims, titles, num_cols=4):
   num_rows = np.math.ceil((len(titles)) / num_cols)
   fig, ax = plt.subplots(num_rows, num_cols, sharex=True, sharey=True)
